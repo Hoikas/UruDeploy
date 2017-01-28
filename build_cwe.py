@@ -74,3 +74,20 @@ class CWEBuilder(BuildProcess):
             exe_src = dest.joinpath(i)
             if exe_src.is_file():
                 shutil.copy(str(exe_src), str(self.staging_dir))
+
+
+class PackPythonBuilder(BuildProcess):
+    def __init__(self, config):
+        self.python_src = pathlib.Path(config.get("moul-scripts", "dir"), "Python")
+        self.python_dest =  pathlib.Path(config.get("client", "staging_dir"), "Python")
+        try:
+            self.python_dest.mkdir(parents=True)
+        except FileExistsError:
+            pass
+        self.build_id = config.get("client", "build_id")
+        self.client_bin = pathlib.Path(config.get("cwe", "build_dir"), "bin", "RelWithDebInfo_internal{}".format(self.build_id))
+
+    def run(self):
+        pack = pathlib.Path(self.client_bin, "plPythonPack.exe")
+        subprocess.call(str(pack), cwd=str(self.python_src))
+        shutil.copy(str(self.python_src / "python.pak"), str(self.python_dest))

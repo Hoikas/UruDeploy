@@ -16,11 +16,12 @@
 import argparse
 import configparser
 
-from build_cwe import CWEBuilder
+from build_cwe import CWEBuilder, PackPythonBuilder
 
 parser = argparse.ArgumentParser(prog="Uru Deploy", description="")
 parser.add_argument("configfile", metavar="INI")
 parser.add_argument("--no-build-cwe", default=False, action="store_true")
+parser.add_argument("--no-pack-python", default=False, action="store_true")
 parser.add_argument("--no-build-server", default=False, action="store_true")
 parser.add_argument("--no-synch-data", default=False, action="store_true")
 parser.add_argument("--no-generate-manifests", default=False, action="store_true")
@@ -34,11 +35,15 @@ if __name__ == "__main__":
     if not args.no_build_cwe:
         print("Building CyanWorlds.com Engine...")
         print()
-        cwe = CWEBuilder( config)
+        cwe = CWEBuilder(config)
         cwe.start_async()
 
     # Before we pack the python, CWE must be done...
-    if not args.no_build_cwe:
+    if not args.no_pack_python:
         cwe.join()
+        print("Packing Python...")
+        print()
+        pypack = PackPythonBuilder(config)
+        pypack.start_async()
 
-    # TODO: someday...
+    # TODO: someday we will build datafiles, manifest, etc
